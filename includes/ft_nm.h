@@ -6,7 +6,7 @@
 /*   By: jaylor <jaylor@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/11/28 09:10:04 by jaylor            #+#    #+#             */
-/*   Updated: 2018/12/04 16:29:35 by jaylor           ###   ########.fr       */
+/*   Updated: 2018/12/07 14:16:54 by jaylor           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,10 @@
 typedef struct      s_node
 {
     char            *seg_name;
-    uint64_t        addr;
-    uint64_t        size;
-    uint32_t        offset;
+    // char            *sec_name;
+    uint8_t         type;
+    uint8_t         n_sect;
+    uint64_t        value;
     struct s_node   *left;
     struct s_node   *right;
 }                   t_node;
@@ -36,6 +37,7 @@ typedef struct      s_nm
     void            *file;
     void            *header;
     struct s_node   *root;
+    int             sec_index[3];
 }                   t_nm;
 
 /*
@@ -79,8 +81,8 @@ void     load_header(t_nm *nm, int is_64, int is_swapped);
 
 void    print_it(t_nm *nm, int header_size);
 void    symthings(t_nm *nm, int nsyms, int symoff, int stroff);
-void    add_segment(t_nm *nm, struct segment_command_64 *segment);
-void    bit_masking(int n_type);
+void    add_segment(t_nm *nm, struct segment_command_64 *segment, char *sec_list, int *len);
+void    bit_masking(t_nm *nm, uint8_t n_type, uint8_t n_sect);
 /*
 **  type_64.c
 */

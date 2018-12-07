@@ -6,7 +6,7 @@
 #    By: jaylor <jaylor@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/11/07 09:35:25 by jaylor            #+#    #+#              #
-#    Updated: 2018/12/04 16:30:56 by jaylor           ###   ########.fr        #
+#    Updated: 2018/12/07 14:25:06 by jaylor           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,7 +14,7 @@ NAME = ft_nm
 
 HEADERS = includes
 
-CFLAGS += -I$(HEADERS) -Wall -Werror -Wextra -g -fsanitize=address 
+CFLAGS += -I$(HEADERS)  -g -fsanitize=address 
 
 FILESO =	main.o \
 			nm.o \
