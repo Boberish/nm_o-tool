@@ -18,6 +18,9 @@ int main(int argc,char **argv)
     root->left = NULL;
     root->right = NULL;
     nm->root = root;
+    nm->sec_index[0] = -1;
+    nm->sec_index[1] = -1;
+    nm->sec_index[2] = -1;
 
     i = 1;
     parse_args(argc,argv);
@@ -27,6 +30,7 @@ int main(int argc,char **argv)
         {
             ft_putstr_fd("Error: problem opening file: ", 2);
             ft_putstr_fd(argv[i], 2);
+            return (1);
         }
         load_info(nm, fd);
         i++;

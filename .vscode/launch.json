@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/ft_nm",
-            "args": ["lem-in"],
+            "args": ["ft_putchar.o"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
