@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/ft_nm",
-            "args": ["ft_putchar.o"],
+            "args": ["custom_tests/32/32_exe_hard"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

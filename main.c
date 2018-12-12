@@ -9,7 +9,9 @@ int main(int argc,char **argv)
     char    letter;
 
     nm = (t_nm*)malloc(sizeof(*nm));
-    nm->file = NULL;
+    if (!nm)
+        return(ft_error_msg("malloc error"));
+    nm->magic = NULL;
     nm->header = NULL;
     letter = 'm';
     
@@ -33,6 +35,7 @@ int main(int argc,char **argv)
             return (1);
         }
         load_info(nm, fd);
+    
         i++;
     
     }

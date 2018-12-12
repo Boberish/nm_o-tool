@@ -10,7 +10,8 @@ size_t  get_fstat(int fd)
     struct stat f_info;
     size_t size;
 
-    fstat(fd, &f_info);
+    if (fstat(fd, &f_info) == -1)
+        return (-1);
     size = f_info.st_size;
     return(size);
 }
