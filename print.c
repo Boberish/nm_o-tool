@@ -1,7 +1,7 @@
 #include "ft_nm.h"
 #include <stdio.h>
 
-void    print_it(t_nm *nm, int header_size, int ncmds)
+void    print_it(t_nm *nm, int header_size, size_t ncmds)
 {
     struct load_command *load_c;
     struct symtab_command *sym;
@@ -25,7 +25,9 @@ void    print_it(t_nm *nm, int header_size, int ncmds)
             add_segment_32(nm, (struct segment_command *)load_c,  &len);
         load_c = (void*)load_c + load_c->cmdsize;
     }
-    print_alpha(nm->root);
+    if (nm->if_fat)
+        ft_printf("\n%s (for architecture %s\n", nm->argv[1], //arch for this type//)
+    print_alpha(nm,nm->root);
 }
 
 void    add_segment_64(t_nm *nm, struct segment_command_64 *segment, int *len)
@@ -79,20 +81,24 @@ void    symthings_64(t_nm *nm, int nsyms, int symoff, int stroff)
     char *string;
     t_node  *node;
 
-    i = 0;
+    i = -1;
     array = nm->header + symoff;
     string = nm->header + stroff;
-    while (i < nsyms)
+    while (++i < nsyms )
     {
+        if ((char)*(string + array[i].n_un.n_strx) == '\0')
+            continue ;
+        if (bit_masking(nm, (struct n_list_64 *)array, array[i].n_type, node->n_sect) == '-')
+            continue ;
         node = (t_node *)malloc(sizeof(t_node));
         node->seg_name = string + array[i].n_un.n_strx;
         node->value = array[i].n_value;
         node->n_sect = array[i].n_sect;
         node->left = NULL;
         node->right = NULL;
-        node->type = bit_masking(nm, (struct n_list_64 *)array, array[i].n_type, node->n_sect);
+        node->type = array[i].n_type;
+        node->type = bit_masking(nm, (struct n_list *)array, array[i].n_type, node->n_sect);
         insert_bt(nm->root, node);
-        i++;
     }
 }
 
@@ -103,17 +109,15 @@ void    symthings_32(t_nm *nm, int nsyms, int symoff, int stroff)
     char *string;
     t_node  *node;
 
-    i = 0;
+    i = -1;
     array = nm->header + symoff;
     string = nm->header + stroff;
-    while (i < nsyms)
+    while (++i < nsyms)
     {
-        i++;
-        // char * tmp;
-        // tmp = string + array[i].n_un.n_strx;
         if ((char)*(string + array[i].n_un.n_strx) == '\0')
             continue ;
-        
+        if (bit_masking(nm, (struct n_list *)array, array[i].n_type, node->n_sect) == '-')
+            continue ;
         node = (t_node *)malloc(sizeof(t_node));
         node->seg_name = string + array[i].n_un.n_strx;
         node->value = array[i].n_value;
@@ -165,26 +169,41 @@ char    find_sec(t_nm *nm, struct nlist_64 *array, uint8_t type, uint8_t n_sect)
 }
 
 
-void print_alpha(t_node *curr)
+void print_alpha(t_nm *nm, t_node *curr)
 {
-		// if (curr->left != NULL)
         if (curr == NULL)
             return ;
-        print_alpha(curr->left);
-        if (curr->seg_name[0] == 'm')
-            return;
-        if (curr->value == 0)
-            printf("                ");
-        else
-		    printf("%016llx",curr->value);
-        printf(" %c", curr->type);
-        printf(" %s\n", curr->seg_name);
-        // printf("%016llx %c %s\n", curr->value, curr->type, curr->seg_name);
-		// if (curr->right != NULL)
-        print_alpha(curr->right);
-		// printf("%x",curr->value);
-        // printf(" %c", curr->type);
-        // printf(" %s", curr->seg_name);
+        print_alpha(nm, curr->left);
+        if (!(curr->value == 999999 && curr->seg_name[0] == 'm'))
+            print_inside(nm,1,curr);
+        print_alpha(nm, curr->right);
         return ;
 }
 
+void    print_inside(t_nm *nm, short t, t_node *curr)
+{
+    if (nm->is_64)
+        {
+            if (curr->value == 0)
+                printf("                ");
+            else
+		        printf("%016llx",curr->value);
+        }
+        else
+        {
+            if (curr->value == 0)
+                printf("        ");
+            else
+		        printf("%08llx",curr->value);
+        }
+        printf(" %c", curr->type);
+        printf(" %s\n", curr->seg_name);
+}
+
+// void    is_safe(t_nm *nm, void *ptr)
+// {
+//     if (ptr > nm->end)
+//         return (0);
+//     else
+//         return (1);
+// }

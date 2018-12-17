@@ -1,17 +1,25 @@
 #include "ft_nm.h"
 
-int load_info(t_nm *nm, int fd)
+
+int load_file(t_nm *nm)
+{
+    nm->f_size = get_fstat(nm->fd);
+    if (nm->f_size == -1)
+        return (ft_error_msg("problem with fstat"));
+    nm->file = mmap(0, nm->f_size, PROT_READ,MAP_PRIVATE, nm->fd, 0);
+    nm->end = nm->file + nm->f_size;
+    if (nm->file == MAP_FAILED)
+        return (ft_error_msg("problem loading file with MMAP"));
+
+    load_info(nm);
+}
+
+int load_info(t_nm *nm)
 {
     uint32_t    magic;
     int         ret;
 
-    nm->f_size = get_fstat(fd);
-    if (nm->f_size == -1)
-        return (ft_error_msg("problem with fstat"));
-    nm->file = mmap(0, nm->f_size, PROT_READ,MAP_PRIVATE, fd, 0);
-    if (nm->file == MAP_FAILED)
-        return (ft_error_msg("problem loading file with MMAP"));
-    if (close(fd) < 0)
+    if (close(nm->fd) < 0)
         return (ft_error_msg("problem closing file"));
     nm->magic = *(uint32_t*)nm->file;
     ret = check_magic(nm);
@@ -20,7 +28,7 @@ int load_info(t_nm *nm, int fd)
     if (ret == 1)
        normal_magic(nm);
     else if (ret == 2)
-        ;   // fat(nm);
+        fat(nm);   // fat(nm);
     else
         return (0); 
     return(1);
@@ -50,7 +58,33 @@ int check_arch(t_nm *nm)
         nm->is_64 = 0;
 }
 
-int fat(t_nm *nm);
+int fat(t_nm *nm)
+{
+    struct fat_arch *arch_file;
+    struct fat_header *fat_file;
+    void   *mach;
+    uint32_t num;
+
+    nm->if_fat = 1;
+    fat_file = nm->file;
+    num = fat_file->nfat_arch;
+    arch_file = (void*)fat_file + sizeof(struct fat_header);
+    while (num--)
+    {
+        if (arch_file->cputype ==  CPU_TYPE_X86_64)
+        {
+            nm->file += arch_file->offset;
+            nm->end = nm->file + arch_file->size;
+            load_info(nm);
+        }
+        arch_file += 1;
+    }
+    // ft_nm(nm);
+
+
+
+
+}
 
 int     check_magic(t_nm *nm)
 {

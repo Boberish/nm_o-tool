@@ -1,4 +1,4 @@
-for file in custom_tests/64/* #custom_tests/32/*
+for file in custom_tests/dylib/* custom_tests/64/* custom_tests/32/*
 do
 ./ft_nm $file > myoutput
 nm $file > nmoutput
